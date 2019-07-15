@@ -1,5 +1,5 @@
 # Build from commits based on redis:3.2
-FROM redis@sha256:000339fb57e0ddf2d48d72f3341e47a8ca3b1beae9bdcb25a96323095b72a79b
+FROM debian:latest
 
 LABEL maintainer="Johan Andersson <Grokzen@gmail.com>"
 
@@ -8,7 +8,17 @@ ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install system dependencies
-RUN apt-get update -qq && \
+RUN echo \
+    deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster main non-free contrib\
+    deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster main non-free contrib\
+    deb http://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main\
+    deb-src http://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main\
+    deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main non-free contrib\
+    deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main non-free contrib\
+    deb http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main non-free contrib\
+    deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main non-free contrib\
+    > /etc/apt/sources.list && \
+    apt-get update -qq && \
     apt-get install --no-install-recommends -yqq \
       net-tools supervisor ruby rubygems locales gettext-base wget && \
     apt-get clean -yqq
@@ -21,7 +31,8 @@ ENV LC_ALL     en_US.UTF-8
 # Necessary for gem installs due to SHA1 being weak and old cert being revoked
 ENV SSL_CERT_FILE=/usr/local/etc/openssl/cert.pem
 
-RUN gem install redis -v 4.0.2
+RUN gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/ && \
+    gem install redis -v 4.0.2
 
 RUN apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby
 

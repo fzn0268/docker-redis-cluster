@@ -10,6 +10,7 @@ services:
       args:
         redis_version: '5.0.5'
     hostname: server
+    network_mode: "host"
     ports:
       - '7000-7007:7000-7007'
       - '5000-5002:5000-5002'
